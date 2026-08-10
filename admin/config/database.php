@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+date_default_timezone_set('Asia/Jakarta');
+
 /*
 |--------------------------------------------------------------------------
 | Konfigurasi Basis Data
@@ -42,6 +44,8 @@ function getDatabaseConnection(): PDO
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]
         );
+
+        $connection->exec("SET time_zone = '+07:00'");
 
         return $connection;
     } catch (PDOException $exception) {

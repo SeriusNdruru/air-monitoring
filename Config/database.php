@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+date_default_timezone_set('Asia/Jakarta');
+
 /**
  * Membuat dan mengembalikan koneksi PDO ke database.
  *

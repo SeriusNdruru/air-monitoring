@@ -120,6 +120,12 @@ function buildAirStatusNotification(
     ?string $previousStatus,
     string $airStatus
 ): string {
+    $jakartaTime = new DateTimeImmutable(
+        'now',
+        new DateTimeZone('Asia/Jakarta')
+    );
+
+$formattedTime = $jakartaTime->format('d-m-Y H:i:s');
     $deviceName = trim((string) ($device['device_name'] ?? 'Perangkat'));
     $deviceCode = trim((string) ($device['device_code'] ?? '-'));
     $location = trim((string) ($device['location'] ?? '-'));
@@ -134,6 +140,6 @@ function buildAirStatusNotification(
         'Nilai ADC MQ135: ' . $mq135Raw,
         'Status sebelumnya: ' . $oldStatus,
         'Status terbaru: ' . $airStatus,
-        'Waktu: ' . date('d-m-Y H:i:s'),
+        'Waktu: ' . $formattedTime . ' WIB'
     ]);
 }
