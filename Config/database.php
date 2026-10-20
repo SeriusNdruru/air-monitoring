@@ -18,18 +18,12 @@ function db(): PDO
         return $pdo;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Konfigurasi database
-    |--------------------------------------------------------------------------
-    | Ganti nilai berikut menggunakan data database dari Plesk.
-    */
-    $host = 'localhost';
-    $port = 3306;
-
-    $database = 'seriusndruru_air_quality_monitoring';
-    $username = 'seriusndruru_airuser';
-    $password = 'A~n6vLFk0~qik3de';
+    // Credentials hanya lewat environment Plesk/server; jangan commit ke ZIP.
+    $host = getenv('AQM_DB_HOST') ?: 'localhost';
+    $port = (int) (getenv('AQM_DB_PORT') ?: '3306');
+    $database = getenv('AQM_DB_NAME') ?: 'seriusndruru_air_quality_monitoring';
+    $username = getenv('AQM_DB_USER') ?: '';
+    $password = getenv('AQM_DB_PASSWORD') ?: '';
 
     /*
     |--------------------------------------------------------------------------

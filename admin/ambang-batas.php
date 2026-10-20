@@ -24,8 +24,8 @@ try {
     error_log('Threshold configuration read error: ' . $exception->getMessage());
 
     $thresholds = [
-        'normal_max' => 1499,
-        'warning_max' => 2499,
+        'normal_max' => 300.0,
+        'warning_max' => 700.0,
         'normal_key' => NORMAL_THRESHOLD_KEY,
         'warning_key' => WARNING_THRESHOLD_KEY,
     ];
@@ -44,22 +44,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $normalMax = filter_var(
         $_POST['normal_max'] ?? null,
-        FILTER_VALIDATE_INT,
-        ['options' => ['min_range' => 0, 'max_range' => 4093]]
+        FILTER_VALIDATE_FLOAT,
+        ['options' => ['min_range' => 0.01, 'max_range' => 99999]]
     );
 
     $warningMax = filter_var(
         $_POST['warning_max'] ?? null,
-        FILTER_VALIDATE_INT,
-        ['options' => ['min_range' => 1, 'max_range' => 4094]]
+        FILTER_VALIDATE_FLOAT,
+        ['options' => ['min_range' => 0.02, 'max_range' => 100000]]
     );
 
     if ($normalMax === false) {
-        $errors[] = 'Batas maksimum Normal harus berada pada rentang 0 sampai 4093.';
+        $errors[] = 'Awal Waspada (PPM) harus berada pada rentang 0,01 sampai 99999 ppm.';
     }
 
     if ($warningMax === false) {
-        $errors[] = 'Batas maksimum Waspada harus berada pada rentang 1 sampai 4094.';
+        $errors[] = 'Awal Bahaya (PPM) harus berada pada rentang 0,02 sampai 100000 ppm.';
     }
 
     if (
@@ -67,15 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         && $warningMax !== false
         && $normalMax >= $warningMax
     ) {
-        $errors[] = 'Batas maksimum Normal harus lebih kecil dari batas maksimum Waspada.';
+        $errors[] = 'Awal Waspada (PPM) harus lebih kecil dari batas maksimum Waspada.';
     }
 
     if ($errors === []) {
         try {
             saveThresholdConfiguration(
                 $database,
-                (int) $normalMax,
-                (int) $warningMax,
+                (float) $normalMax,
+                (float) $warningMax,
                 $thresholds
             );
 
@@ -88,18 +88,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($normalMax !== false) {
-        $thresholds['normal_max'] = (int) $normalMax;
+        $thresholds['normal_max'] = (float) $normalMax;
     }
 
     if ($warningMax !== false) {
-        $thresholds['warning_max'] = (int) $warningMax;
+        $thresholds['warning_max'] = (float) $warningMax;
     }
 }
 
-$normalMax = (int) $thresholds['normal_max'];
-$warningMax = (int) $thresholds['warning_max'];
-$warningMin = $normalMax + 1;
-$dangerMin = $warningMax + 1;
+$normalMax = (float) $thresholds['normal_max'];
+$warningMax = (float) $thresholds['warning_max'];
+$warningMin = $normalMax;
+$dangerMin = $warningMax;
 ?>
 
 <!DOCTYPE html>
@@ -150,7 +150,7 @@ $dangerMin = $warningMax + 1;
         <main class="main-content">
             <header class="page-header">
                 <div>
-                    <p class="eyebrow">Pengaturan kategori nilai ADC MQ135</p>
+                    <p class="eyebrow">Ambang estimasi CO2 ekuivalen (PPM)</p>
                     <h1>Ambang Batas</h1>
                 </div>
 
@@ -184,7 +184,7 @@ $dangerMin = $warningMax + 1;
                     <span class="status-dot status-normal"></span>
                     <div>
                         <span>Normal</span>
-                        <strong>0 sampai <?= escapeHtml($normalMax); ?></strong>
+                        <strong>di bawah <?= escapeHtml($normalMax); ?> ppm</strong>
                     </div>
                 </article>
 
@@ -192,7 +192,7 @@ $dangerMin = $warningMax + 1;
                     <span class="status-dot status-warning"></span>
                     <div>
                         <span>Waspada</span>
-                        <strong><?= escapeHtml($warningMin); ?> sampai <?= escapeHtml($warningMax); ?></strong>
+                        <strong><?= escapeHtml($warningMin); ?> hingga kurang dari <?= escapeHtml($warningMax); ?> ppm</strong>
                     </div>
                 </article>
 
@@ -200,7 +200,7 @@ $dangerMin = $warningMax + 1;
                     <span class="status-dot status-danger"></span>
                     <div>
                         <span>Bahaya</span>
-                        <strong><?= escapeHtml($dangerMin); ?> sampai 4095</strong>
+                        <strong>mulai <?= escapeHtml($dangerMin); ?> ppm</strong>
                     </div>
                 </article>
             </section>
@@ -219,29 +219,31 @@ $dangerMin = $warningMax + 1;
 
                         <div class="form-grid threshold-form-grid">
                             <label>
-                                Batas maksimum Normal
+                                Awal Waspada (PPM)
                                 <input
                                     type="number"
                                     name="normal_max"
-                                    min="0"
-                                    max="4093"
+                                    min="0.01"
+                                    max="99999"
+                                    step="0.01"
                                     value="<?= escapeHtml($normalMax); ?>"
                                     required
                                 >
-                                <small>Nilai Normal dimulai dari 0.</small>
+                                <small>Normal untuk estimasi PPM di bawah batas pertama.</small>
                             </label>
 
                             <label>
-                                Batas maksimum Waspada
+                                Awal Bahaya (PPM)
                                 <input
                                     type="number"
                                     name="warning_max"
-                                    min="1"
-                                    max="4094"
+                                    min="0.02"
+                                    max="100000"
+                                    step="0.01"
                                     value="<?= escapeHtml($warningMax); ?>"
                                     required
                                 >
-                                <small>Nilai Bahaya dimulai satu angka setelah batas ini.</small>
+                                <small>Bahaya mulai tepat pada batas ini.</small>
                             </label>
                         </div>
 
@@ -260,15 +262,15 @@ $dangerMin = $warningMax + 1;
                     <div class="panel-header">
                         <div>
                             <h2>Ketentuan Nilai</h2>
-                            <p>Validasi untuk rentang ADC ESP32.</p>
+                            <p>Ambang internal aplikasi dalam PPM, bukan baku mutu ISPU.</p>
                         </div>
                     </div>
 
                     <ul>
-                        <li>Rentang pembacaan ADC adalah 0 sampai 4095.</li>
+                        <li>Nilai PPM merupakan estimasi CO2 ekuivalen dari MQ-135.</li>
                         <li>Batas Normal harus lebih kecil dari batas Waspada.</li>
                         <li>Setiap nilai hanya masuk ke satu kategori.</li>
-                        <li>Nilai yang disimpan bukan AQI atau ppm.</li>
+                        <li>Ambang 300/700 PPM hanyalah nilai contoh internal dan bukan ISPU resmi.</li><li>Pembacaan sebelum kalibrasi berstatus Belum Terkalibrasi.</li>
                     </ul>
 
                     <div class="setting-key-box">
@@ -281,8 +283,7 @@ $dangerMin = $warningMax + 1;
 
             <div class="integration-notice">
                 Perubahan disimpan pada tabel <code>system_settings</code>. Proses penentuan
-                status pada server atau perangkat harus membaca pengaturan ini agar perubahan
-                diterapkan pada data baru.
+                status server membaca pengaturan ini untuk setiap data baru; firmware mengambilnya melalui API thresholds.php secara berkala.
             </div>
         </main>
     </div>

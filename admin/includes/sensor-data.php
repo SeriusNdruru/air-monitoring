@@ -86,9 +86,9 @@ function getSensorReadingSummary(PDO $database, array $filters): array
     $sql = sprintf(
         'SELECT
             COUNT(*) AS total,
-            COALESCE(SUM(CASE WHEN LOWER(sr.air_status) = \'normal\' THEN 1 ELSE 0 END), 0) AS normal,
-            COALESCE(SUM(CASE WHEN LOWER(sr.air_status) = \'waspada\' THEN 1 ELSE 0 END), 0) AS waspada,
-            COALESCE(SUM(CASE WHEN LOWER(sr.air_status) = \'bahaya\' THEN 1 ELSE 0 END), 0) AS bahaya
+            COALESCE(SUM(CASE WHEN sr.mq135_ppm IS NOT NULL AND LOWER(sr.air_status) = \'normal\' THEN 1 ELSE 0 END), 0) AS normal,
+            COALESCE(SUM(CASE WHEN sr.mq135_ppm IS NOT NULL AND LOWER(sr.air_status) = \'waspada\' THEN 1 ELSE 0 END), 0) AS waspada,
+            COALESCE(SUM(CASE WHEN sr.mq135_ppm IS NOT NULL AND LOWER(sr.air_status) = \'bahaya\' THEN 1 ELSE 0 END), 0) AS bahaya
          FROM sensor_readings sr
          INNER JOIN devices d ON d.id = sr.device_id
          %s',
@@ -127,6 +127,7 @@ function getSensorReadings(
             sr.id,
             sr.device_id,
             sr.mq135_raw,
+                sr.mq135_ppm,
             sr.air_status,
             sr.recorded_at,
             sr.created_at,

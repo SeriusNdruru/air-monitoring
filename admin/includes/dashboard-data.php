@@ -89,6 +89,7 @@ function getLatestChartReadings(PDO $database, int $limit = 30): array
                  SELECT
                     sr.id,
                     sr.mq135_raw,
+                sr.mq135_ppm,
                     sr.air_status,
                     sr.recorded_at,
                     sr.created_at
@@ -155,6 +156,7 @@ function getDashboardData(PDO $database): array
             "SELECT
                 sr.id,
                 sr.mq135_raw,
+                sr.mq135_ppm,
                 sr.air_status,
                 sr.recorded_at,
                 sr.created_at,
@@ -182,6 +184,7 @@ function getDashboardData(PDO $database): array
         'SELECT
             sr.id,
             sr.mq135_raw,
+                sr.mq135_ppm,
             sr.air_status,
             sr.recorded_at,
             sr.created_at,

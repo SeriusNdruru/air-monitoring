@@ -424,13 +424,9 @@ try {
                         )
                     ),
 
+                'mq135_ppm' => $row['mq135_ppm'] === null ? null : (float)$row['mq135_ppm'],
                 'air_status' =>
-                    (string) (
-                        $row[
-                            'air_status'
-                        ]
-                        ?? '-'
-                    ),
+                    ($row['mq135_ppm'] === null ? 'Belum Terkalibrasi' : (string)($row['air_status'] ?? '-')),
 
                 /*
                 |--------------------------------------------------------------

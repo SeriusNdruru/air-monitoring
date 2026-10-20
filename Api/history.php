@@ -12,7 +12,7 @@ header('Expires: 0');
 
 require_once __DIR__ . '/../config/database.php';
 
-const DATABASE_TIMEZONE = 'UTC';
+const DATABASE_TIMEZONE = 'Asia/Jakarta';
 const DISPLAY_TIMEZONE = 'Asia/Jakarta';
 
 /**
@@ -74,6 +74,7 @@ try {
         SELECT
             sr.id,
             sr.mq135_raw,
+            sr.mq135_ppm,
             sr.air_status,
             COALESCE(sr.recorded_at, sr.created_at) AS recorded_at,
             d.device_code,
@@ -109,6 +110,7 @@ try {
         $data[] = [
             'id' => (int) $row['id'],
             'mq135_raw' => (int) $row['mq135_raw'],
+            'mq135_ppm' => $row['mq135_ppm'] === null ? null : (float) $row['mq135_ppm'],
             'air_status' => (string) $row['air_status'],
             'device_code' => (string) $row['device_code'],
             'device_name' => (string) $row['device_name'],

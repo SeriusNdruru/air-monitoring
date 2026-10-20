@@ -542,7 +542,7 @@ $endRecord = min(
             <div>
 
                 <p class="eyebrow">
-                    Riwayat pembacaan nilai ADC MQ135
+                    Riwayat estimasi CO2 ekuivalen (PPM)
                 </p>
 
                 <h1>
@@ -636,7 +636,7 @@ $endRecord = min(
                 </strong>
 
                 <small>
-                    Nilai ADC 0 sampai 1499
+                    Normal: di bawah 300 ppm (contoh)
                 </small>
 
             </article>
@@ -655,7 +655,7 @@ $endRecord = min(
                 </strong>
 
                 <small>
-                    Nilai ADC 1500 sampai 2499
+                    Waspada: mulai 300 ppm (contoh)
                 </small>
 
             </article>
@@ -674,7 +674,7 @@ $endRecord = min(
                 </strong>
 
                 <small>
-                    Nilai ADC 2500 sampai 4095
+                    Bahaya: mulai 700 ppm (contoh)
                 </small>
 
             </article>
@@ -913,7 +913,7 @@ $endRecord = min(
                             </th>
 
                             <th>
-                                Nilai ADC MQ135
+                                Estimasi PPM MQ135
                             </th>
 
                             <th>
@@ -997,7 +997,7 @@ $endRecord = min(
                                         <strong>
                                             <?= escapeHtml(
                                                 $reading[
-                                                    'mq135_raw'
+                                                    'mq135_ppm'
                                                 ]
                                                 ?? '-'
                                             ); ?>
@@ -1386,7 +1386,7 @@ $endRecord = min(
                                 <strong>
                                     ${
                                         escapeHtml(
-                                            reading.mq135_raw
+                                            (reading.mq135_ppm === null ? 'Belum dikalibrasi' : `${reading.mq135_ppm} ppm`)
                                         )
                                     }
                                 </strong>

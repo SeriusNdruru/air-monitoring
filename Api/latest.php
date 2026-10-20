@@ -16,7 +16,7 @@ require_once __DIR__ . '/../config/database.php';
  * Waktu pada database proyek disimpan sebagai UTC.
  * Semua waktu yang dikirim ke dashboard pelanggan dikonversi ke WIB.
  */
-const DATABASE_TIMEZONE = 'UTC';
+const DATABASE_TIMEZONE = 'Asia/Jakarta';
 const DISPLAY_TIMEZONE = 'Asia/Jakarta';
 const DEVICE_ONLINE_TIMEOUT_SECONDS = 35;
 
@@ -86,6 +86,7 @@ try {
         SELECT
             sr.id,
             sr.mq135_raw,
+            sr.mq135_ppm,
             sr.air_status,
             COALESCE(sr.recorded_at, sr.created_at) AS recorded_at,
 
@@ -188,6 +189,9 @@ try {
     $responseData = [
         'id' => (int) $data['id'],
         'mq135_raw' => (int) $data['mq135_raw'],
+        'mq135_ppm' => $data['mq135_ppm'] === null ? null : (float) $data['mq135_ppm'],
+        'unit' => 'ppm',
+        'classification_basis' => 'internal - bukan ISPU',
         'air_status' => (string) $data['air_status'],
 
         'device_code' => (string) $data['device_code'],

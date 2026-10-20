@@ -218,17 +218,7 @@ function prepareChartReadings(
                     ?? 0
                 ),
 
-            'mq135_raw' =>
-                max(
-                    0,
-                    min(
-                        4095,
-                        (int) (
-                            $row['mq135_raw']
-                            ?? 0
-                        )
-                    )
-                ),
+            'mq135_ppm' => $row['mq135_ppm'] === null ? null : (float)$row['mq135_ppm'],
 
             'air_status' =>
                 (string) (
@@ -258,25 +248,14 @@ $latestReading =
         'latest_reading'
     ];
 
-$latestAdc =
-    is_array($latestReading)
-        ? (int) (
-            $latestReading[
-                'mq135_raw'
-            ]
-            ?? 0
-        )
-        : null;
+$latestAdc = is_array($latestReading) && $latestReading['mq135_ppm'] !== null
+    ? (float)$latestReading['mq135_ppm'] : null;
 
-$latestAirStatus =
-    is_array($latestReading)
-        ? (string) (
-            $latestReading[
-                'air_status'
-            ]
-            ?? '-'
-        )
-        : '-';
+$latestAirStatus = !is_array($latestReading) ? '-' : (
+    $latestReading['mq135_ppm'] === null
+        ? 'Belum Terkalibrasi'
+        : (string)($latestReading['air_status'] ?? '-')
+);
 
 $latestRecordedAt =
     is_array($latestReading)
@@ -560,7 +539,7 @@ if ($initialChartJson === false) {
             <article class="summary-card">
 
                 <span class="summary-label">
-                    Nilai ADC Terbaru
+                    Estimasi PPM Terbaru
                 </span>
 
                 <strong
@@ -630,7 +609,7 @@ if ($initialChartJson === false) {
                     <div>
 
                         <h2>
-                            Grafik Nilai ADC MQ135
+                            Grafik Estimasi CO2 Ekuivalen (PPM)
                         </h2>
 
                         <p>
@@ -681,7 +660,7 @@ if ($initialChartJson === false) {
                         class="line-chart"
                         viewBox="0 0 1000 330"
                         role="img"
-                        aria-label="Grafik 30 pembacaan terakhir nilai ADC MQ135"
+                        aria-label="Grafik 30 pembacaan terakhir estimasi PPM MQ135"
                         preserveAspectRatio="xMidYMid meet"
                     ></svg>
 
@@ -715,7 +694,7 @@ if ($initialChartJson === false) {
                         </h2>
 
                         <p>
-                            Nilai ADC MQ135 terakhir.
+                            Estimasi PPM MQ135 terakhir.
                         </p>
 
                     </div>
@@ -1018,7 +997,7 @@ if ($initialChartJson === false) {
                         </strong>
 
                         <small>
-                            0 sampai 1499
+                            di bawah 300 ppm (contoh)
                         </small>
 
                     </div>
@@ -1035,7 +1014,7 @@ if ($initialChartJson === false) {
                         </strong>
 
                         <small>
-                            1500 sampai 2499
+                            300 hingga <700 ppm (contoh)
                         </small>
 
                     </div>
@@ -1052,7 +1031,7 @@ if ($initialChartJson === false) {
                         </strong>
 
                         <small>
-                            2500 sampai 4095
+                            mulai 700 ppm (contoh)
                         </small>
 
                     </div>
@@ -1097,7 +1076,7 @@ if ($initialChartJson === false) {
                                 </th>
 
                                 <th>
-                                    Nilai ADC MQ135
+                                    Estimasi PPM MQ135
                                 </th>
 
                                 <th>
@@ -1163,7 +1142,7 @@ if ($initialChartJson === false) {
                                         <td>
                                             <?= escapeHtml(
                                                 $reading[
-                                                    'mq135_raw'
+                                                    'mq135_ppm'
                                                 ]
                                                 ?? '-'
                                             ); ?>
@@ -1750,8 +1729,7 @@ if ($initialChartJson === false) {
 
                 appendCell(
                     row,
-                    reading.mq135_raw
-                    ?? '-'
+                    reading.mq135_ppm === null ? 'Belum dikalibrasi' : `${reading.mq135_ppm} ppm`
                 );
 
 
@@ -1822,6 +1800,7 @@ if ($initialChartJson === false) {
             )
                 ? readings
                     .slice(-30)
+                    .filter((reading) => reading.mq135_ppm !== null && reading.mq135_ppm !== undefined)
                     .map(
                         (reading) => ({
 
@@ -1831,17 +1810,8 @@ if ($initialChartJson === false) {
                                     || 0
                                 ),
 
-                            mq135_raw:
-                                Math.max(
-                                    0,
-                                    Math.min(
-                                        4095,
-                                        Number(
-                                            reading.mq135_raw
-                                            || 0
-                                        )
-                                    )
-                                ),
+                            mq135_ppm: reading.mq135_ppm === null || reading.mq135_ppm === undefined
+                                ? null : Number(reading.mq135_ppm),
 
                             air_status:
                                 String(
@@ -1914,13 +1884,9 @@ if ($initialChartJson === false) {
             - margin.bottom;
 
 
-        const yTicks = [
-            0,
-            1000,
-            2000,
-            3000,
-            4095
-        ];
+        const maxPpm = Math.max(1000, ...validReadings.map(r => r.mq135_ppm));
+        const yMax = Math.ceil(maxPpm / 250) * 250;
+        const yTicks = [0, yMax * .25, yMax * .5, yMax * .75, yMax];
 
 
         const lastIndex =
@@ -1941,7 +1907,7 @@ if ($initialChartJson === false) {
                     - (
                         (
                             tick
-                            / 4095
+                            / yMax
                         )
                         * plotHeight
                     );
@@ -2067,8 +2033,8 @@ if ($initialChartJson === false) {
                         + plotHeight
                         - (
                             (
-                                reading.mq135_raw
-                                / 4095
+                                reading.mq135_ppm
+                                / yMax
                             )
                             * plotHeight
                         );
@@ -2230,8 +2196,8 @@ if ($initialChartJson === false) {
                                 0,
 
                             'aria-label':
-                                `Nilai ADC ${
-                                    point.mq135_raw
+                                `Estimasi PPM ${
+                                    point.mq135_ppm
                                 }, status ${
                                     point.air_status
                                 }, waktu ${
@@ -2247,8 +2213,8 @@ if ($initialChartJson === false) {
                         {},
                         `${
                             point.full_label
-                        } | ADC ${
-                            point.mq135_raw
+                        } | PPM ${
+                            point.mq135_ppm
                         } | ${
                             point.air_status
                         }`
@@ -2320,7 +2286,7 @@ if ($initialChartJson === false) {
 
         latestAdcSummary.textContent =
             String(
-                latest.mq135_raw
+                latest.mq135_ppm
             );
 
 
@@ -2333,7 +2299,7 @@ if ($initialChartJson === false) {
         ) {
             latestReadingValue.textContent =
                 String(
-                    latest.mq135_raw
+                    latest.mq135_ppm
                 );
         }
 

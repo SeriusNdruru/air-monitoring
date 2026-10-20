@@ -69,12 +69,12 @@
 
         <section class="summary-grid">
             <article class="summary-card">
-                <p class="card-label">Nilai MQ135</p>
+                <p class="card-label">Estimasi CO₂ ekuivalen</p>
 
                 <h2 id="mq135Value">-</h2>
 
                 <p class="card-description">
-                    Nilai pembacaan sensor
+                    Satuan PPM (belum valid tanpa kalibrasi)
                 </p>
             </article>
 
@@ -139,7 +139,7 @@
                         <h2>Grafik Pembacaan MQ135</h2>
 
                         <p>
-                            Riwayat nilai sensor berdasarkan waktu
+                            Riwayat estimasi PPM berdasarkan waktu, bukan indeks ISPU resmi
                         </p>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
                         <th>No.</th>
                         <th>Waktu</th>
                         <th>Perangkat</th>
-                        <th>Nilai MQ135</th>
+                        <th>Estimasi CO₂ ekuivalen</th>
                         <th>Status</th>
                     </tr>
                     </thead>

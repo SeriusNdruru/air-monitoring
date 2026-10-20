@@ -127,7 +127,7 @@ async function loadHistoryData() {
 function renderLatestData(data) {
     setText(
         'mq135Value',
-        data.mq135_raw ?? '-'
+        formatPpm(data.mq135_ppm)
     );
 
     setText(
@@ -215,7 +215,7 @@ function renderHistoryTable(data) {
         );
         appendCell(
             row,
-            item.mq135_raw ?? '-'
+            formatPpm(item.mq135_ppm)
         );
 
         const statusCell = document.createElement('td');
@@ -263,7 +263,7 @@ function initializeChart() {
 
             datasets: [
                 {
-                    label: 'Nilai MQ135',
+                    label: 'Estimasi CO2 ekuivalen (PPM)',
                     data: [],
                     borderWidth: 2,
                     tension: 0.25,
@@ -287,7 +287,7 @@ function initializeChart() {
 
                     title: {
                         display: true,
-                        text: 'Nilai pembacaan sensor'
+                        text: 'Estimasi konsentrasi (PPM)'
                     }
                 },
 
@@ -331,7 +331,7 @@ function updateChart(data) {
 
     airQualityChart.data.datasets[0].data =
         chronologicalData.map((item) => {
-            const value = Number(item.mq135_raw);
+            const value = item.mq135_ppm === null ? NaN : Number(item.mq135_ppm);
 
             return Number.isNaN(value)
                 ? null
@@ -546,4 +546,10 @@ function hideError() {
 
     errorBox.textContent = '';
     errorBox.classList.add('hidden');
+}
+// Tidak memalsukan histori ADC menjadi PPM.
+function formatPpm(value) {
+    if (value === null || value === undefined || value === '') return 'Belum dikalibrasi';
+    const n = Number(value);
+    return Number.isFinite(n) ? `${n.toFixed(2)} ppm` : 'Belum dikalibrasi';
 }
