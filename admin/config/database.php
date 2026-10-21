@@ -12,11 +12,11 @@ date_default_timezone_set('Asia/Jakarta');
 | Jangan membagikan data ini kepada orang lain.
 */
 
-define('DB_HOST', getenv('AQM_DB_HOST') ?: 'localhost');
-define('DB_PORT', getenv('AQM_DB_PORT') ?: '3306');
-define('DB_NAME', getenv('AQM_DB_NAME') ?: 'seriusndruru_air_quality_monitoring');
-define('DB_USER', getenv('AQM_DB_USER') ?: '');
-define('DB_PASSWORD', getenv('AQM_DB_PASSWORD') ?: '');
+const DB_HOST = 'localhost';
+const DB_PORT = '3306';
+const DB_NAME = 'seriusndruru_air_quality_monitoring';
+const DB_USER = 'seriusndruru_airuser';
+const DB_PASSWORD = 'A~n6vLFk0~qik3de';
 
 function getDatabaseConnection(): PDO
 {
