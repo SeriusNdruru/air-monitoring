@@ -82,6 +82,7 @@ function getLatestChartReadings(PDO $database, int $limit = 30): array
             'SELECT
                 recent.id,
                 recent.mq135_raw,
+                recent.mq135_ppm,
                 recent.air_status,
                 recent.recorded_at,
                 recent.created_at
